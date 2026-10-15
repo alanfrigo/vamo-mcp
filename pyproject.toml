@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vamo-mcp"
+version = "0.1.0"
+description = "Disposable Docker desktop MCP server for AI computer use, browser automation, and local app testing"
+readme = "README.md"
+keywords = ["mcp", "model-context-protocol", "computer-use", "desktop-automation", "browser-automation", "docker", "ai-agents"]
+requires-python = ">=3.11"
+dependencies = [
+  "mcp>=1.28.1,<2", "docker>=7.2,<8", "httpx>=0.27.1,<1",
+  "pydantic>=2.12,<3", "anyio>=4.10,<5",
+]
+
+[project.optional-dependencies]
+test = ["Pillow>=12.1.1,<13"]
+
+[project.scripts]
+vamo-mcp = "ephemeral_desktop_mcp.server:main"
+
+[project.urls]
+Homepage = "https://github.com/alanfrigo/vamo-mcp"
+Repository = "https://github.com/alanfrigo/vamo-mcp"
+Issues = "https://github.com/alanfrigo/vamo-mcp/issues"
+Documentation = "https://github.com/alanfrigo/vamo-mcp#readme"
+
+[tool.setuptools.packages.find]
+where = ["src"]

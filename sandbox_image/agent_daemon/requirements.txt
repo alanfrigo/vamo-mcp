@@ -1,0 +1,5 @@
+fastapi>=0.143.2,<1
+uvicorn>=0.34,<1
+pydantic>=2.12,<3
+mss>=10.2,<11
+Pillow>=12.1.1,<13

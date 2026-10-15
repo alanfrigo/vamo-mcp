@@ -1,0 +1,12 @@
+.venv/
+.venv-tools/
+__pycache__/
+*.egg-info/
+*.pyc
+build/
+dist/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
