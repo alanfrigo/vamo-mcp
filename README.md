@@ -363,6 +363,7 @@ The manager uses host networking, private filesystem/process namespaces, `init=T
 ├── uv.lock                         # Host dependency resolution
 ├── Makefile                        # Optional build/test/run shortcuts
 ├── MANIFEST.in                     # Include Docker context in source distribution
+├── skills/vamo-mcp/SKILL.md         # Portable Agent Skills guidance
 ├── sandbox_image/
 │   ├── Dockerfile
 │   ├── entrypoint.sh               # Validate env, protect X11, start Supervisor
@@ -430,6 +431,8 @@ The suite uses real Docker containers, the official MCP stdio client, and a dete
 Recorded Linux verification also included a real noVNC browser view: counter/color changed after an MCP click; observer input was refused even with client view-only disabled; an incorrect password was denied; valid reconnection and teardown succeeded.
 
 **Client validation scope:** Claude Code connected and native PI listed all six tools using temporary configurations. The installed OpenCode binary returned `No MCP servers configured` for the temporary checkout; its connection was not proven. Cursor configuration was validated as JSON, but connection was not exercised. macOS/Windows Docker Desktop behavior has not been tested on native hosts here.
+
+**Installation validation:** the documented GitHub `uv tool install` and remote Git Docker build were exercised on Linux in an isolated tool directory. The installed executable listed all six MCP tools, initialized a real container, returned a decoded 1280×800 PNG and shell output, and removed its container after EOF. The public Skills CLI command installed matching skill contents in a temporary project; local installs targeting Claude Code, Cursor, OpenCode, and PI were also exercised. This proves discovery/installation, not automatic skill activation or behavioral adherence by every agent model. Native Windows/macOS one-line installation remains untested.
 
 ### Measured latency
 
