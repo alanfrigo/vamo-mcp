@@ -8,7 +8,7 @@ Connect it to **Claude Code, Cursor, OpenCode, PI**, or another MCP client with 
 
 > **Security boundary:** filesystem, process, and display isolation—not network isolation. Containers use **host networking** and can reach host services. Read-write workspace mounts change real files. This is for trusted local automation, **not a VM or a sandbox for hostile code**.
 
-[Quick start](#quick-start) · [MCP client configuration](#mcp-client-configuration) · [Tools](#mcp-tools) · [Architecture](#architecture) · [Security](#security-and-isolation-model) · [Tests](#testing-and-verification) · [Troubleshooting](#troubleshooting)
+[One-line install](#one-line-install) · [Agent skill](#agent-skill) · [MCP client configuration](#mcp-client-configuration) · [Tools](#mcp-tools) · [Architecture](#architecture) · [Security](#security-and-isolation-model) · [Tests](#testing-and-verification) · [Troubleshooting](#troubleshooting)
 
 ## Why a separate desktop?
 
@@ -55,6 +55,36 @@ For **Docker Desktop on macOS or Windows**, use version **4.34 or newer**, switc
 Remote Docker daemons, rootless Docker, and Windows containers are rejected because they do not satisfy the shared-localhost contract. There is no automatic bridge-network fallback and no automatic modification of Docker settings.
 
 ## Quick start
+
+### One-line install
+
+With **uv, Git, and a running local Docker installation** already available, install the CLI in an isolated tool environment and build the desktop image directly from GitHub:
+
+```sh
+uv tool install 'git+https://github.com/alanfrigo/vamo-mcp.git' && docker build -t ephemeral-desktop-sandbox:latest 'https://github.com/alanfrigo/vamo-mcp.git#main:sandbox_image'
+```
+
+Works in POSIX shells and PowerShell 7+. Windows PowerShell 5.1: run the two commands separately and only build after installation succeeds. Docker Desktop prerequisites above still apply. The image build downloads Debian packages and Python dependencies; this is not a prebuilt image pull.
+
+No installer script, global Python package installation, automatic sudo, shell-profile edits, or MCP client configuration changes. **Installing from GitHub executes project/build code; review the repository before running it.** For reproducible installs, pin the Python Git URL to `@<commit-sha>` and replace `main` in the Docker URL with that same SHA.
+
+Find the installed executable with `uv tool dir --bin`; use the absolute `vamo-mcp` path in your MCP client if that directory is not on its PATH. Launch command after this install is **`vamo-mcp`**, without `uv run` or a checkout directory. Minimal Claude/Cursor/PI configuration:
+
+```json
+{
+  "mcpServers": {
+    "ephemeral-sandbox": {
+      "type": "stdio",
+      "command": "/ABSOLUTE/PATH/TO/vamo-mcp",
+      "args": []
+    }
+  }
+}
+```
+
+Use `vamo-mcp.exe` on Windows. OpenCode uses `{"mcp":{"ephemeral-sandbox":{"type":"local","command":["/ABSOLUTE/PATH/TO/vamo-mcp"],"enabled":true}}}`. The checkout-based examples below remain an alternative, not another required installation step. To update a tool installation, use `uv tool upgrade vamo-mcp` and rebuild the image from the matching revision. To remove it, use `uv tool uninstall vamo-mcp`; Docker images and separately installed skills are not removed automatically.
+
+### Install from a checkout
 
 ```sh
 git clone https://github.com/alanfrigo/vamo-mcp.git
@@ -104,6 +134,28 @@ python3 -m venv .venv
 ```
 
 The Docker image build is still required. These instructions install from source; they do not imply a published PyPI package or prebuilt registry image.
+
+## Agent skill
+
+MCP tools work without a skill: clients discover their schemas and descriptions through MCP. The optional [vamo-mcp Agent Skill](skills/vamo-mcp/SKILL.md) teaches agents when and how to use the private desktop, inspect screenshots, diagnose failures, respect workspace/network boundaries, and clean up the session instead of controlling your physical display.
+
+Install it into your current project with the [Skills CLI](https://github.com/vercel-labs/skills) (requires Node.js/npm):
+
+```sh
+npx skills add alanfrigo/vamo-mcp --skill vamo-mcp
+```
+
+Choose your agent and scope when prompted. For a noninteractive Claude Code project install:
+
+```sh
+npx skills add alanfrigo/vamo-mcp --skill vamo-mcp --agent claude-code --yes
+```
+
+Use `--agent cursor`, `--agent opencode`, or `--agent pi` for those clients; `--global` explicitly requests user-wide installation. Review the skill and installer before granting access to agent directories. No skill is installed implicitly by the MCP CLI or Docker image.
+
+The skill follows the [Agent Skills specification](https://agentskills.io/specification): `skills/vamo-mcp/SKILL.md` contains discovery metadata and instructions, without hard-coded harness tool prefixes or an automatic permission grant. You can also copy its directory into a skill location supported by your client.
+
+**Skill installation does not install Docker, build the image, configure the MCP server, or grant shell/file permissions.** Complete the server installation and MCP configuration too. Reload your client after adding the skill/configuration; check that it exposes the six sandbox tools. Skill and MCP are separate: guidance versus executable capabilities.
 
 ## MCP client configuration
 
